@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Trophy, Users } from 'lucide-react';
+import { supabase, Winner } from '../lib/supabase';
 
 interface Guide {
   name: string;
@@ -23,12 +24,30 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
   isDrawing
 }) => {
   const [currentName, setCurrentName] = useState('');
-  const [winners, setWinners] = useState<Guide[]>([]);
-  const [availableGuides, setAvailableGuides] = useState<Guide[]>(guides);
+  const [dbWinners, setDbWinners] = useState<Winner[]>([]);
+  const [availableGuides, setAvailableGuides] = useState<Guide[]>([]);
 
   useEffect(() => {
-    setAvailableGuides(guides.filter(guide => !winners.some(w => w.name === guide.name)));
-  }, [guides, winners]);
+    fetchDepartmentWinners();
+  }, [department]);
+
+  const fetchDepartmentWinners = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('winners')
+        .select('*')
+        .eq('department', department)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setDbWinners(data || []);
+    } catch (error) {
+      console.error('Error fetching department winners:', error);
+    }
+  };
+  useEffect(() => {
+    setAvailableGuides(guides.filter(guide => !dbWinners.some(w => w.name === guide.name)));
+  }, [guides, dbWinners]);
 
   useEffect(() => {
     if (isDrawing && availableGuides.length > 0) {
@@ -48,11 +67,14 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
             // Select final winner after animation stops
             const finalWinner = availableGuides[Math.floor(Math.random() * availableGuides.length)];
             setCurrentName(finalWinner.name);
-            setWinners(prev => [...prev, finalWinner]);
             
             // Delay before calling onWinnerSelected to show the final name
             setTimeout(() => {
               onWinnerSelected(finalWinner);
+              // Refresh winners after selection
+              setTimeout(() => {
+                fetchDepartmentWinners();
+              }, 1000);
             }, 1000);
           } else {
             // Gradually slow down the animation
@@ -68,12 +90,7 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
         if (interval) clearInterval(interval);
       };
     }
-  }, [isDrawing, availableGuides, onWinnerSelected]);
-
-  const resetWinners = () => {
-    setWinners([]);
-    setCurrentName('');
-  };
+  }, [isDrawing, availableGuides, onWinnerSelected, department]);
 
   const departmentColors = {
     'International Messaging': 'from-blue-500 to-purple-600',
@@ -114,37 +131,36 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
         </div>
       </div>
 
-      {winners.length > 0 && (
+      {dbWinners.length > 0 && (
         <div className="mb-4">
           <h4 className="text-white font-semibold mb-2 flex items-center">
             <Trophy className="w-4 h-4 mr-1 text-yellow-300" />
-            Winners ({winners.length}/{winnersCount}):
+            Winners ({dbWinners.length}/{winnersCount}):
           </h4>
           <div className="space-y-2">
-            {winners.map((winner, index) => (
+            {dbWinners.map((winner, index) => (
               <div key={index} className="bg-white/20 rounded-lg p-3 backdrop-blur-sm">
                 <div className="text-white font-medium">{winner.name}</div>
                 <div className="text-white/70 text-sm">Supervisor: {winner.supervisor}</div>
-                <div className="text-yellow-300 text-sm font-semibold">Prize: ₹5,000</div>
+                <div className="text-yellow-300 text-sm font-semibold">Prize: ₹{winner.prize_amount.toLocaleString()}</div>
+                <div className="text-white/60 text-xs">
+                  {new Date(winner.created_at).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {winners.length > 0 && winners.length < winnersCount && (
+      {dbWinners.length > 0 && dbWinners.length < winnersCount && (
         <div className="text-center text-white/80 text-sm mb-4">
-          {winnersCount - winners.length} more winner(s) to be drawn
+          {winnersCount - dbWinners.length} more winner(s) to be drawn
         </div>
-      )}
-
-      {winners.length > 0 && (
-        <button
-          onClick={resetWinners}
-          className="w-full bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 backdrop-blur-sm"
-        >
-          Reset Winners
-        </button>
       )}
     </div>
   );
