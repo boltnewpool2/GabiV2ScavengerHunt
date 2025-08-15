@@ -106,4 +106,4 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
   );
 };
 
-export default PasswordModal;</parameter>
+export default PasswordModal;
