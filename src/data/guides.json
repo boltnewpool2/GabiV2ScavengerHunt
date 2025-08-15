@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Alice Johnson",
+    "supervisor": "John Smith",
+    "department": "International Messaging"
+  },
+  {
+    "name": "Bob Chen",
+    "supervisor": "Sarah Wilson",
+    "department": "International Messaging"
+  },
+  {
+    "name": "Carol Davis",
+    "supervisor": "Mike Brown",
+    "department": "International Messaging"
+  },
+  {
+    "name": "David Kumar",
+    "supervisor": "Lisa Anderson",
+    "department": "International Messaging"
+  },
+  {
+    "name": "Emma Rodriguez",
+    "supervisor": "Tom Garcia",
+    "department": "International Messaging"
+  },
+  {
+    "name": "Frank Liu",
+    "supervisor": "Jennifer Lee",
+    "department": "APAC"
+  },
+  {
+    "name": "Grace Tanaka",
+    "supervisor": "Robert Kim",
+    "department": "APAC"
+  },
+  {
+    "name": "Henry Wong",
+    "supervisor": "Maria Santos",
+    "department": "APAC"
+  },
+  {
+    "name": "Iris Yamamoto",
+    "supervisor": "David Park",
+    "department": "APAC"
+  },
+  {
+    "name": "Jack Zhang",
+    "supervisor": "Amy Chen",
+    "department": "APAC"
+  },
+  {
+    "name": "Kavya Sharma",
+    "supervisor": "Rajesh Gupta",
+    "department": "India Messaging"
+  },
+  {
+    "name": "Liam Patel",
+    "supervisor": "Priya Singh",
+    "department": "India Messaging"
+  },
+  {
+    "name": "Maya Reddy",
+    "supervisor": "Arjun Mehta",
+    "department": "India Messaging"
+  },
+  {
+    "name": "Nikhil Agarwal",
+    "supervisor": "Sneha Joshi",
+    "department": "India Messaging"
+  },
+  {
+    "name": "Ojas Verma",
+    "supervisor": "Ravi Kumar",
+    "department": "India Messaging"
+  }
+]
