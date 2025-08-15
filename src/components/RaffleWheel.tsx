@@ -23,7 +23,6 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
   isDrawing
 }) => {
   const [currentName, setCurrentName] = useState('');
-  const [animationSpeed, setAnimationSpeed] = useState(50);
   const [winners, setWinners] = useState<Guide[]>([]);
   const [availableGuides, setAvailableGuides] = useState<Guide[]>(guides);
 
@@ -35,7 +34,7 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
     if (isDrawing && availableGuides.length > 0) {
       let interval: NodeJS.Timeout;
       let duration = 0;
-      const maxDuration = 3000;
+      const maxDuration = 6000; // Increased duration to 6 seconds
       let currentSpeed = 50;
 
       const animate = () => {
@@ -50,12 +49,15 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
             const finalWinner = availableGuides[Math.floor(Math.random() * availableGuides.length)];
             setCurrentName(finalWinner.name);
             setWinners(prev => [...prev, finalWinner]);
-            onWinnerSelected(finalWinner);
-            setAnimationSpeed(50); // Reset speed for next draw
+            
+            // Delay before calling onWinnerSelected to show the final name
+            setTimeout(() => {
+              onWinnerSelected(finalWinner);
+            }, 1000);
           } else {
             // Gradually slow down the animation
             const progress = duration / maxDuration;
-            currentSpeed = Math.max(50, 300 - (progress * 250));
+            currentSpeed = Math.max(100, 400 - (progress * 300)); // Slower animation
           }
         }, currentSpeed);
       };
@@ -71,7 +73,6 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
   const resetWinners = () => {
     setWinners([]);
     setCurrentName('');
-    setAnimationSpeed(50);
   };
 
   const departmentColors = {

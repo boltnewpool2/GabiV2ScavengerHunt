@@ -4,6 +4,7 @@ import FloatingOrbs from './components/FloatingOrbs';
 import Confetti from './components/Confetti';
 import RaffleWheel from './components/RaffleWheel';
 import WinnersDashboard from './components/WinnersDashboard';
+import WinnerCelebrationModal from './components/WinnerCelebrationModal';
 import { supabase } from './lib/supabase';
 import guidesData from './data/guides.json';
 
@@ -33,6 +34,13 @@ function App() {
     'APAC': [],
     'India Messaging': []
   });
+  const [celebrationModal, setCelebrationModal] = useState<{
+    isOpen: boolean;
+    winner: Guide | null;
+  }>({
+    isOpen: false,
+    winner: null
+  });
 
   const departments = ['International Messaging', 'APAC', 'India Messaging'];
 
@@ -41,18 +49,31 @@ function App() {
   };
 
   const handleWinnerSelected = (department: string, winner: Guide) => {
-    // Save winner to database
-    saveWinnerToDatabase(winner);
+    // Show celebration modal first
+    setCelebrationModal({
+      isOpen: true,
+      winner: winner
+    });
     
     setCurrentWinners(prev => ({
       ...prev,
       [department]: [...prev[department], winner]
     }));
     
+    // Save winner to database
+    saveWinnerToDatabase(winner);
+    
     setShowConfetti(true);
     
     // Always stop drawing after selecting a winner
     setIsDrawing(prev => ({ ...prev, [department]: false }));
+  };
+
+  const closeCelebrationModal = () => {
+    setCelebrationModal({
+      isOpen: false,
+      winner: null
+    });
   };
 
   const saveWinnerToDatabase = async (winner: Guide) => {
@@ -70,9 +91,11 @@ function App() {
 
       if (error) {
         console.error('Error saving winner to database:', error);
+        // You could show an error message to the user here
       }
     } catch (error) {
       console.error('Error saving winner:', error);
+      // You could show an error message to the user here
     }
   };
 
@@ -102,13 +125,13 @@ function App() {
       setIsDrawing(prev => ({ ...prev, [department]: true }));
       
       // Wait for animation to complete
-      await new Promise(resolve => setTimeout(resolve, 3500));
+      await new Promise(resolve => setTimeout(resolve, 7500)); // Increased wait time
       
       setIsDrawing(prev => ({ ...prev, [department]: false }));
       
       // Wait before next draw
       if (i < maxWinners - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Longer pause between draws
       }
     }
   };
@@ -280,6 +303,13 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Winner Celebration Modal */}
+      <WinnerCelebrationModal
+        isOpen={celebrationModal.isOpen}
+        winner={celebrationModal.winner}
+        onClose={closeCelebrationModal}
+      />
     </div>
   );
 }
