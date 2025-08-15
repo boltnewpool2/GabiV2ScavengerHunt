@@ -36,26 +36,28 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
       let interval: NodeJS.Timeout;
       let duration = 0;
       const maxDuration = 3000;
+      let currentSpeed = 50;
 
       const animate = () => {
         interval = setInterval(() => {
           const randomGuide = availableGuides[Math.floor(Math.random() * availableGuides.length)];
           setCurrentName(randomGuide.name);
-          duration += animationSpeed;
+          duration += currentSpeed;
 
           if (duration >= maxDuration) {
             clearInterval(interval);
+            // Select final winner after animation stops
             const finalWinner = availableGuides[Math.floor(Math.random() * availableGuides.length)];
             setCurrentName(finalWinner.name);
             setWinners(prev => [...prev, finalWinner]);
             onWinnerSelected(finalWinner);
+            setAnimationSpeed(50); // Reset speed for next draw
           } else {
             // Gradually slow down the animation
             const progress = duration / maxDuration;
-            const newSpeed = 50 + (progress * 200);
-            setAnimationSpeed(newSpeed);
+            currentSpeed = Math.max(50, 300 - (progress * 250));
           }
-        }, animationSpeed);
+        }, currentSpeed);
       };
 
       animate();
@@ -64,7 +66,7 @@ const RaffleWheel: React.FC<RaffleWheelProps> = ({
         if (interval) clearInterval(interval);
       };
     }
-  }, [isDrawing, availableGuides, animationSpeed, onWinnerSelected]);
+  }, [isDrawing, availableGuides, onWinnerSelected]);
 
   const resetWinners = () => {
     setWinners([]);
